@@ -1,0 +1,8 @@
+# PyPDF2==1.26.0
+textract-1.6.3
+# pdfreader==0.1.3
+nltk==3.4.5
+spacy==2.2.3
+# brew install tcl-tk ghostscript
+camelot-py[cv]
+pytesseract==0.3.1
