@@ -30,7 +30,7 @@ class USPriceList:
 
         # Remove all whitespaces from the partno
         df['Partnumber'] = df['Partnumber'].apply(lambda x: x.strip())
-        df['Replaced'] = df['Replaced'].apply(lambda x: x.strip())
+        # df['Replaced'] = df['Replaced'].apply(lambda x: str(x).strip())
         # Remove all whitespaces from HSCode
 
         return df
@@ -45,6 +45,16 @@ class USPriceList:
         :return:
         """
         return self.pricelist[self.pricelist['Partnumber'] == part_no]
+
+    @property
+    def get_partlist(self):
+        return self.pricelist['Partnumber']
+
+    @property
+    def get_partlist_as_set(self):
+        return set(self.pricelist['Partnumber'])
+
+usp_price_list = USPriceList()
 
 if __name__ == "__main__":
     print("Import the Stock Control List from Union Special")
