@@ -2,13 +2,6 @@
     Tests how the Gmail-email client is working
 """
 
-from __future__ import print_function
-import pickle
-import os.path
-from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-
 # If modifying these scopes, delete the file token.pickle.
 from googleapiclient.discovery import build
 from apiclient import errors
@@ -37,7 +30,11 @@ def create_message(sender, to, subject, message_text):
   message['to'] = to
   message['from'] = sender
   message['subject'] = subject
-  return {'raw': base64.urlsafe_b64encode(message.as_string())}
+  print("Message is")
+  print(message)
+  print(message.as_string())
+  # print(base64.urlsafe_b64encode(message.as_string().encode('utf-8')))
+  return {'raw': message.as_string()}
 
 def send_message(service, user_id, message):
   """Send an email message.
@@ -50,8 +47,8 @@ def send_message(service, user_id, message):
     Sent Message.
   """
   try:
-    message = (service.users().messages().send(userId=user_id, body=message)
-               .execute())
+    message = service.users().messages().send(userId=user_id, body=message)
+    message.execute()
     print('Message Id: %s' % message['id'])
     return message
   except errors.HttpError as error:
