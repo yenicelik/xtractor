@@ -12,9 +12,9 @@ from google.oauth2 import service_account
 
 # Email variables. Modify this!
 EMAIL_FROM = 'david@theaicompany.com'
-EMAIL_TO = 'seegaslp@gmail.com'
-EMAIL_SUBJECT = 'Hello  from Lyfepedia!'
-EMAIL_CONTENT = 'Hello, this is a test\nhttps://david@theaicompany.com'
+EMAIL_TO = 'segaslp@gmail.com'
+EMAIL_SUBJECT = 'Testing GMail API!'
+EMAIL_CONTENT = 'Hello, this is a test3'
 
 def create_message(sender, to, subject, message_text):
   """Create a message for an email.
@@ -31,10 +31,16 @@ def create_message(sender, to, subject, message_text):
   message['from'] = sender
   message['subject'] = subject
   print("Message is")
-  print(message)
-  print(message.as_string())
-  # print(base64.urlsafe_b64encode(message.as_string().encode('utf-8')))
-  return {'raw': message.as_string()}
+
+  b64_bytes = base64.urlsafe_b64encode(message.as_bytes())
+  b64_string = b64_bytes.decode()
+  return {'raw': b64_string}
+
+  # print(message)
+  # print(message.as_string())
+  # # print(base64.urlsafe_b64encode(message.as_string().encode('utf-8')))
+  # # print(base64.urlsafe_b64encode(message.as_string()))
+  # return {'raw': message.as_string()}
 
 def send_message(service, user_id, message):
   """Send an email message.
@@ -49,7 +55,8 @@ def send_message(service, user_id, message):
   try:
     message = service.users().messages().send(userId=user_id, body=message)
     message.execute()
-    print('Message Id: %s' % message['id'])
+    # print('Message Id: %s' % message['id'])
+    print("Sent ", message)
     return message
   except errors.HttpError as error:
     print('An error occurred: %s' % error)
