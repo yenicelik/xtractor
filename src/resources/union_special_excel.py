@@ -1,6 +1,7 @@
 """
     Union special excel template
 """
+import numpy as np
 from copy import copy
 from openpyxl import load_workbook
 
@@ -56,8 +57,8 @@ class USExcelTemplate:
             replaced=None
     ):
 
-        assert isinstance(listprice, float) or isinstance(listprice, int), (
-            "Listprice is not of type float", listprice
+        assert isinstance(listprice, float) or isinstance(listprice, int) or isinstance(listprice, np.float64), (
+            "Listprice is not of type float", listprice, type(listprice)
         )
 
         rowidx = self.rowcounter + self.rowoffset
@@ -105,32 +106,36 @@ class USExcelTemplate:
         self.sheet[f'I{rowidx}']._style = style
 
         # Stock
-        style = copy(self.sheet[f'L{self.rowoffset}']._style)
-        print("Row offset is: ", self.rowoffset)
-        print("Style is: ", style)
-        self.sheet[f'L{rowidx}'] = stock
-        self.sheet[f'L{rowidx}']._style = style
+        if stock is not None:
+            style = copy(self.sheet[f'L{self.rowoffset}']._style)
+            print("Row offset is: ", self.rowoffset)
+            print("Style is: ", style)
+            self.sheet[f'L{rowidx}'] = stock
+            self.sheet[f'L{rowidx}']._style = style
 
         # Status
-        style = copy(self.sheet[f'K{self.rowoffset}']._style)
-        print("Row offset is: ", self.rowoffset)
-        print("Style is: ", style)
-        self.sheet[f'K{rowidx}'] = status
-        self.sheet[f'K{rowidx}']._style = style
+        if status is not None:
+            style = copy(self.sheet[f'K{self.rowoffset}']._style)
+            print("Row offset is: ", self.rowoffset)
+            print("Style is: ", style)
+            self.sheet[f'K{rowidx}'] = status
+            self.sheet[f'K{rowidx}']._style = style
 
         # Weight
-        style = copy(self.sheet[f'M{self.rowoffset}']._style)
-        print("Row offset is: ", self.rowoffset)
-        print("Style is: ", style)
-        self.sheet[f'M{rowidx}'] = weight
-        self.sheet[f'M{rowidx}']._style = style
+        if weight is not None:
+            style = copy(self.sheet[f'M{self.rowoffset}']._style)
+            print("Row offset is: ", self.rowoffset)
+            print("Style is: ", style)
+            self.sheet[f'M{rowidx}'] = weight
+            self.sheet[f'M{rowidx}']._style = style
 
         # Replaced
-        style = copy(self.sheet[f'N{self.rowoffset}']._style)
-        print("Row offset is: ", self.rowoffset)
-        print("Style is: ", style)
-        self.sheet[f'N{rowidx}'] = replaced
-        self.sheet[f'N{rowidx}']._style = style
+        if replaced is not None:
+            style = copy(self.sheet[f'N{self.rowoffset}']._style)
+            print("Row offset is: ", self.rowoffset)
+            print("Style is: ", style)
+            self.sheet[f'N{rowidx}'] = replaced
+            self.sheet[f'N{rowidx}']._style = style
 
         # Increase counter by one...
         self.rowcounter += 1
@@ -141,7 +146,7 @@ class USExcelTemplate:
         self.sheet[f'F{rowidx}'] = f'=J{rowidx}'
 
     def save_to_disk(self):
-        self.workbook.save("./test.xlsx")
+        self.workbook.save("./test1.xlsx")
 
 
 if __name__ == "__main__":

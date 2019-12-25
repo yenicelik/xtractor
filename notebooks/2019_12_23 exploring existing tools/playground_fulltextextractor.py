@@ -32,7 +32,7 @@ if __name__ == '__main__':
     fulltext = []
 
     with tempfile.TemporaryDirectory() as path:
-        images = convert_from_path('/Users/david/xtractor/data/RFP/sample2.pdf', output_folder=path)
+        images = convert_from_path('/Users/david/xtractor/data/RFP/sample1.pdf', output_folder=path)
         print("Images from path")
         print(images)
         for i, img in enumerate(images):
@@ -81,16 +81,14 @@ if __name__ == '__main__':
         # For each item in the intersection retrieve from the price list and retrieve the individual items
         print("Inserting example exel")
         excel.insert_item(
-            partnumber=part_json['Partnumber'],
-            description=part_json['Description'],
-            listprice=part_json['Price'],
-            stock=part_json['Stock'],
-            status=part_json['Status'],
-            weight=part_json['Weight'],
-            replaced=part_json['Replaced']
+            partnumber=part_json['Partnumber'].values[0],
+            description=part_json['Description'].values[0],
+            listprice=part_json['Price'].values[0],
+            stock=part_json['Stock'].values[0],
+            status=part_json['Status'].values[0],
+            weight=part_json['Weight'].values[0],
+            replaced=part_json['Replaced'].values[0]
         )
-
-    exit(0)
 
     excel.save_to_disk()
 
