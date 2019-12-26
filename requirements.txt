@@ -23,4 +23,7 @@ google-auth-oauthlib==0.4.1
 # oauth2==
 # googleapiclient==
 # apiclient==
-
+python-dotenv==0.10.3
+beautifulsoup4==4.8.2
+lxml==4.4.2
+unidecode==1.1.1
