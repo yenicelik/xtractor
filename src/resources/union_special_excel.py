@@ -63,74 +63,93 @@ class USExcelTemplate:
 
         rowidx = self.rowcounter + self.rowoffset
 
+        print("Row id is", rowidx)
+
         # Insert a row
         if self.rowcounter > 0:
             self.sheet.insert_rows(rowidx + 1) # Plus 1 because we insert above, not below the roindex
+            # try:
+            #     self.sheet.unmerge_cells(f"E{rowidx}:F{rowidx}")
+            # except Exception as error:
+            #     pass
+            style_row = rowidx - 1
+        else:
+            style_row = rowidx
 
         # Copy the styles of the preivous cells
         print("Row offset is: ", self.rowcounter)
 
         # Insert "sira"
-        style = copy(self.sheet[f'A{self.rowoffset}']._style)
+        style = copy(self.sheet[f'A{style_row}']._style)
         self.sheet[f'A{rowidx}'] = self.rowcounter + 1
         self.sheet[f'A{rowidx}']._style = style
 
         # Partnumber
-        style = copy(self.sheet[f'D{self.rowoffset}']._style)
+        style = copy(self.sheet[f'D{style_row}']._style)
         self.sheet[f'D{rowidx}'] = partnumber
         self.sheet[f'D{rowidx}']._style = style
 
         # Description
-        style = copy(self.sheet[f'E{self.rowoffset}']._style)
+        style = copy(self.sheet[f'E{style_row}']._style)
         self.sheet[f'E{rowidx}'] = description
         self.sheet[f'E{rowidx}']._style = style
 
         # Listprice
-        style = copy(self.sheet[f'I{self.rowoffset}']._style)
-        self.sheet[f'I{rowidx}'] = listprice
-        self.sheet[f'I{rowidx}']._style = style
-
-        # Replaced by
-        style = copy(self.sheet[f'I{self.rowoffset}']._style)
-        self.sheet[f'I{rowidx}'] = listprice
-        self.sheet[f'I{rowidx}']._style = style
-
-        # Weight
-        style = copy(self.sheet[f'I{self.rowoffset}']._style)
+        style = copy(self.sheet[f'I{style_row}']._style)
         self.sheet[f'I{rowidx}'] = listprice
         self.sheet[f'I{rowidx}']._style = style
 
         # Stock
         if stock is not None:
-            style = copy(self.sheet[f'L{self.rowoffset}']._style)
+            style = copy(self.sheet[f'L{style_row}']._style)
             self.sheet[f'L{rowidx}'] = stock
             self.sheet[f'L{rowidx}']._style = style
 
         # Status
         if status is not None:
-            style = copy(self.sheet[f'K{self.rowoffset}']._style)
+            style = copy(self.sheet[f'K{style_row}']._style)
             self.sheet[f'K{rowidx}'] = status
             self.sheet[f'K{rowidx}']._style = style
 
         # Weight
         if weight is not None:
-            style = copy(self.sheet[f'M{self.rowoffset}']._style)
+            style = copy(self.sheet[f'M{style_row}']._style)
             self.sheet[f'M{rowidx}'] = weight
             self.sheet[f'M{rowidx}']._style = style
 
         # Replaced
         if replaced is not None:
-            style = copy(self.sheet[f'N{self.rowoffset}']._style)
+            style = copy(self.sheet[f'N{style_row}']._style)
             self.sheet[f'N{rowidx}'] = replaced
             self.sheet[f'N{rowidx}']._style = style
 
+        # Copy all equations which were not copied yet
+
+        style = copy(self.sheet[f'F{style_row}']._style)
+        self.sheet[f'F{rowidx}'] = f'=J{rowidx}'
+        self.sheet[f'F{rowidx}']._style = style
+
+        style = copy(self.sheet[f'J{style_row}']._style)
+        self.sheet[f'J{rowidx}'] = f'=I{rowidx} * 2.15'
+        self.sheet[f'J{rowidx}']._style = style
+
+        style = copy(self.sheet[f'H{style_row}']._style)
+        self.sheet[f'H{rowidx}'] = f'=F{rowidx}*B{rowidx}'
+        self.sheet[f'H{rowidx}']._style = style
+
+        # Copy cell style for "dead cells
+        for deadcol in ['B', 'C', 'G']:
+            style = copy(self.sheet[f'{deadcol}{style_row}']._style)
+            self.sheet[f'{deadcol}{rowidx}']._style = style
+
+        print("Row id is", rowidx)
+
+        self.sheet[f'H{rowidx + 3}'] = f'=SUM(H{self.rowoffset}: H{rowidx})'
+        self.sheet[f'H{rowidx + 4}'] = f'=H{rowidx + 3}*25/100'
+        self.sheet[f'H{rowidx + 5}'] = f'=H{rowidx + 3}-H{rowidx + 4}'
+
         # Increase counter by one...
         self.rowcounter += 1
-
-        # Copy all equations which were not copied yet
-        self.sheet[f'J{rowidx}'] = f'=I{rowidx} * 2.15'
-        self.sheet[f'G{rowidx}'] = f'=F{rowidx}*B{rowidx}'
-        self.sheet[f'F{rowidx}'] = f'=J{rowidx}'
 
     def save_to_disk(self):
         self.workbook.save("./test1.xlsx")

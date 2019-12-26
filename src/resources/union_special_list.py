@@ -32,7 +32,19 @@ class USPriceList:
         print(df.head())
 
         # Create duplicates where we have a "TP" "SP" after the price, with a
-
+        def _status_to_meaning(char):
+            if char == 'A':
+                return 'active'
+            elif char == 'C':
+                return 'avail/price must be checked'
+            elif char == 'G':
+                return 'not available or replaced'
+            elif char == 'R':
+                return 'parts on request'
+            elif char == 'T':
+                return 'dead part'
+            else:
+                return "-"
 
         # Remove all whitespaces from the partno
         df['Partnumber'] = df['Partnumber'].apply(lambda x: x.strip())
@@ -42,8 +54,10 @@ class USPriceList:
         # Drop all where the listprice is not available
         # Perhaps make sense to put the warnings into the e-mail
         df['Replaced'] = df['Replaced'].apply(lambda x: str(x).strip())
-        df['Replaced'] = df['Replaced'].fillna("")
+        df['Replaced'] = df['Replaced'].fillna(" ")
         df['Status'] = df['Status'].apply(lambda x: str(x).strip())
+        df['Status'] = df['Status'].apply(_status_to_meaning)
+
         # Remove all whitespaces from HSCode
 
         return df
