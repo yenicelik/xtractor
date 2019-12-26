@@ -17,9 +17,9 @@ def handle_datasources(datasources):
     """
     out = []
     for filename, content_str in datasources:
+        print("Filename is: ", filename)
         if filename == "plaintext":
             out.append(content_str)
-            pass
         elif filename.endswith('.pdf'):
             text = PDF2Text().pdf_bytestring_to_text(content_str)
             out.append(text)
@@ -111,13 +111,11 @@ if __name__ == "__main__":
 
             print("Sending e-mail and marking as read...")
 
-            exit(0)
-
             # We might want to mark individual items as read before,
             # just in case it creates a crash in the server...
 
             # mark_as_read(service, 'me', message_idx)
             # email_wrapper.get_message(msg_id=message_idx)
 
-
+        exit(0)
         time.sleep(TIME_INTERVAL)

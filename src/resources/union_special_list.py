@@ -56,7 +56,7 @@ class USPriceList:
         df['Replaced'] = df['Replaced'].apply(lambda x: str(x).strip())
         df['Replaced'] = df['Replaced'].fillna(" ")
         df['Status'] = df['Status'].apply(lambda x: str(x).strip())
-        df['Status'] = df['Status'].apply(_status_to_meaning)
+        # df['Status'] = df['Status'].apply(_status_to_meaning)
 
         # Remove all whitespaces from HSCode
 

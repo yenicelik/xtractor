@@ -1,6 +1,8 @@
 """
     Union special excel template
 """
+import random
+
 import numpy as np
 from copy import copy
 from openpyxl import load_workbook
@@ -68,78 +70,74 @@ class USExcelTemplate:
         # Insert a row
         if self.rowcounter > 0:
             self.sheet.insert_rows(rowidx + 1) # Plus 1 because we insert above, not below the roindex
-            # try:
-            #     self.sheet.unmerge_cells(f"E{rowidx}:F{rowidx}")
-            # except Exception as error:
-            #     pass
-            style_row = rowidx - 1
+            previous_row = rowidx - 1
         else:
-            style_row = rowidx
+            previous_row = rowidx
 
         # Copy the styles of the preivous cells
         print("Row offset is: ", self.rowcounter)
 
         # Insert "sira"
-        style = copy(self.sheet[f'A{style_row}']._style)
-        self.sheet[f'A{rowidx}'] = self.rowcounter + 1
+        style = copy(self.sheet[f'A{previous_row}']._style)
+        self.sheet[f'A{rowidx}'] = self.sheet[f'A{previous_row}'].value + 1 if self.rowcounter > 0 else 1
         self.sheet[f'A{rowidx}']._style = style
 
         # Partnumber
-        style = copy(self.sheet[f'D{style_row}']._style)
+        style = copy(self.sheet[f'D{previous_row}']._style)
         self.sheet[f'D{rowidx}'] = partnumber
         self.sheet[f'D{rowidx}']._style = style
 
         # Description
-        style = copy(self.sheet[f'E{style_row}']._style)
+        style = copy(self.sheet[f'E{previous_row}']._style)
         self.sheet[f'E{rowidx}'] = description
         self.sheet[f'E{rowidx}']._style = style
 
         # Listprice
-        style = copy(self.sheet[f'I{style_row}']._style)
+        style = copy(self.sheet[f'I{previous_row}']._style)
         self.sheet[f'I{rowidx}'] = listprice
         self.sheet[f'I{rowidx}']._style = style
 
         # Stock
         if stock is not None:
-            style = copy(self.sheet[f'L{style_row}']._style)
+            style = copy(self.sheet[f'L{previous_row}']._style)
             self.sheet[f'L{rowidx}'] = stock
             self.sheet[f'L{rowidx}']._style = style
 
         # Status
         if status is not None:
-            style = copy(self.sheet[f'K{style_row}']._style)
+            style = copy(self.sheet[f'K{previous_row}']._style)
             self.sheet[f'K{rowidx}'] = status
             self.sheet[f'K{rowidx}']._style = style
 
         # Weight
         if weight is not None:
-            style = copy(self.sheet[f'M{style_row}']._style)
+            style = copy(self.sheet[f'M{previous_row}']._style)
             self.sheet[f'M{rowidx}'] = weight
             self.sheet[f'M{rowidx}']._style = style
 
         # Replaced
         if replaced is not None:
-            style = copy(self.sheet[f'N{style_row}']._style)
+            style = copy(self.sheet[f'N{previous_row}']._style)
             self.sheet[f'N{rowidx}'] = replaced
             self.sheet[f'N{rowidx}']._style = style
 
         # Copy all equations which were not copied yet
 
-        style = copy(self.sheet[f'F{style_row}']._style)
+        style = copy(self.sheet[f'F{previous_row}']._style)
         self.sheet[f'F{rowidx}'] = f'=J{rowidx}'
         self.sheet[f'F{rowidx}']._style = style
 
-        style = copy(self.sheet[f'J{style_row}']._style)
+        style = copy(self.sheet[f'J{previous_row}']._style)
         self.sheet[f'J{rowidx}'] = f'=I{rowidx} * 2.15'
         self.sheet[f'J{rowidx}']._style = style
 
-        style = copy(self.sheet[f'H{style_row}']._style)
+        style = copy(self.sheet[f'H{previous_row}']._style)
         self.sheet[f'H{rowidx}'] = f'=F{rowidx}*B{rowidx}'
         self.sheet[f'H{rowidx}']._style = style
 
         # Copy cell style for "dead cells
         for deadcol in ['B', 'C', 'G']:
-            style = copy(self.sheet[f'{deadcol}{style_row}']._style)
+            style = copy(self.sheet[f'{deadcol}{previous_row}']._style)
             self.sheet[f'{deadcol}{rowidx}']._style = style
 
         print("Row id is", rowidx)
@@ -152,8 +150,8 @@ class USExcelTemplate:
         self.rowcounter += 1
 
     def save_to_disk(self):
-        self.workbook.save("./test1.xlsx")
-
+        rnd_no = random.randint(10000, 99999)
+        self.workbook.save(f"./test{rnd_no}.xlsx")
 
 if __name__ == "__main__":
     print("Looking at the individual items")
