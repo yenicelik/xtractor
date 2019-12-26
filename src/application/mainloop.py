@@ -5,6 +5,7 @@ import time
 # Should perhaps write all to logs, instead of to stdout
 from src.email_ingest.gmail import EmailWrapper
 from src.filereaders.pdf2text import PDF2Text
+from src.filereaders.xls2text import XLS2Text
 from src.resources.union_special_excel import USExcelTemplate
 from src.resources.union_special_list import usp_price_list
 
@@ -15,21 +16,16 @@ def handle_datasources(datasources):
     :return:
     """
     out = []
-    for filename, datasource in datasources:
+    for filename, content_str in datasources:
         if filename == "plaintext":
-            out.append(datasource)
+            out.append(content_str)
             pass
         elif filename.endswith('.pdf'):
-            text = PDF2Text()
+            text = PDF2Text().pdf_bytestring_to_text(content_str)
             out.append(text)
-        elif filename.endswith('.xls'):
-            # text = XLS2Text()
-            # out.append(text)
-            raise NotImplementedError
-        elif filename.endswith('.xlsx'):
-            # text = XLSX2Text()
-            # out.append(text)
-            raise NotImplementedError
+        elif filename.endswith('.xls') or filename.endswith('.xlsx'):
+            text = XLS2Text().xls_bytestring_to_text(content_str)
+            out.append(text)
         else:
             print("Not supported type!", filename)
 

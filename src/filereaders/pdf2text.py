@@ -15,9 +15,6 @@ from pdf2image.exceptions import (
 
 import tempfile
 
-from src.resources.union_special_excel import USExcelTemplate
-from src.resources.union_special_list import usp_price_list
-
 class PDF2Text:
 
     def __init__(self):
