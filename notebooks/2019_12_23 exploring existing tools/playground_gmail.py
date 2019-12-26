@@ -217,7 +217,7 @@ class EmailWrapper:
             clean_one = part_data.replace("-", "+")  # decoding from Base64 to UTF-8
             clean_one = clean_one.replace("_", "/")  # decoding from Base64 to UTF-8
             clean_two = base64.b64decode(bytes(clean_one, 'UTF-8'))  # decoding from Base64 to UTF-8
-            soup = BeautifulSoup(clean_two, "lxml")
+            soup = BeautifulSoup(clean_two, "lxml") # This is completely unnecessary and hacky haha
             message_body = unidecode(' '.join(map(lambda p: p.text, soup.find_all('p')))).lower()
             out.append(message_body)
 
@@ -250,38 +250,31 @@ class EmailWrapper:
 
             print("Does payload have parts?")
 
-            for part in message['payload']['parts']:
-                print("This far")
-                print(part)
+            for part in message['payload'].get('parts', ''):
+                if 'parts' not in part:
+                    continue
+                parts = part['parts']
+                # print("Parts")
+                # del part['headers']
+                out = []
+                for part in parts:
+                    # print(part)
+                    if part['filename']:
+                        if 'data' in part['body']:
+                            # print("Getting body data")
+                            data = part['body']['data']
+                        else:
+                            # print("Retrieving attachment")
+                            att_id = part['body']['attachmentId']
+                            att = self.service.users().messages().attachments().get(userId=self.user_id, messageId=msg_id, id=att_id).execute()
+                            data = att['data']
 
-                if 'data' in part['body']:
-                    data = part['body']['data']
-                    print("Here1")
+                        file_data = base64.urlsafe_b64decode(data.encode('UTF-8'))
+                        path = part['filename']
 
-                elif 'attachmendId' in part['body']:
-                    print("Here2")
-                    att_id = part['body']['attachmentId']
-                    att = self.service.users().messages().attachments().get(
-                        userId=self.user_id,
-                        messageId=msg_id,
-                        id=att_id
-                    ).execute()
-                    data = att['data']
-
-                print("This far2")
-                file_data = base64.urlsafe_b64decode(data.encode('UTF-8'))
-                path = part['filename']
-                print("Path is: ", path)
-
-                # with open(path, 'w') as f:
-                #     f.write(file_data)
-                print("File data is: ")
-                print(file_data)
-                print("path is")
-                print(path)
-                out.append(
-                    (path, file_data)
-                )
+                        out.append(
+                            (path, file_data)
+                        )
 
             print("Out is: ")
             for i in out:
