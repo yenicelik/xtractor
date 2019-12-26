@@ -42,6 +42,9 @@ def extract_union_special_items(fulltext):
     out = []
     for part in matching_parts:
         part_json = usp_price_list.get_partnumber_json(part_no=part)
+        print("Part json is")
+        print(part_json)
+        print("Part json is", type(part_json), len(part_json))
         out.append(part_json)
     return out
 
@@ -74,6 +77,10 @@ if __name__ == "__main__":
             ###############################
             print("Retrieving OCR or fulltext")
             attachments = email_service.get_message_with_attachments(msg_id=message_idx)
+
+            if attachments is None:
+                continue
+
             plaintext = handle_datasources(attachments)
             print(f"---- Extracted {len(plaintext)} characters starting with {plaintext[:100]} ----")
 
@@ -85,28 +92,26 @@ if __name__ == "__main__":
             print("Matching parts are")
             print(matching_parts)
 
-
-
-            exit(0)
-
             excel = USExcelTemplate()
             for part_json in matching_parts:
                 print("Inserting")
                 print(part_json)
                 excel.insert_item(
-                    partnumber=part_json['Partnumber'].values[0],
-                    description=part_json['Description'].values[0],
-                    listprice=part_json['Price'].values[0],
-                    stock=part_json['Stock'].values[0],
-                    status=part_json['Status'].values[0],
-                    weight=part_json['Weight'].values[0],
-                    replaced=part_json['Replaced'].values[0]
+                    partnumber=part_json['Partnumber'],
+                    description=part_json['Description'],
+                    listprice=part_json['Price'],
+                    stock=part_json['Stock'],
+                    status=part_json['Status'],
+                    weight=part_json['Weight'],
+                    replaced=part_json['Replaced']
                 )
 
             # Instead of saving to disk, we need to send the email ....
             excel.save_to_disk()
 
             print("Sending e-mail and marking as read...")
+
+            exit(0)
 
             # We might want to mark individual items as read before,
             # just in case it creates a crash in the server...

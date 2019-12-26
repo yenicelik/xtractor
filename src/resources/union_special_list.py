@@ -41,7 +41,9 @@ class USPriceList:
         print(df['Price'])
         # Drop all where the listprice is not available
         # Perhaps make sense to put the warnings into the e-mail
-        # df['Replaced'] = df['Replaced'].apply(lambda x: str(x).strip())
+        df['Replaced'] = df['Replaced'].apply(lambda x: str(x).strip())
+        df['Replaced'] = df['Replaced'].fillna("")
+        df['Status'] = df['Status'].apply(lambda x: str(x).strip())
         # Remove all whitespaces from HSCode
 
         return df
@@ -55,23 +57,28 @@ class USPriceList:
         :param part_no:
         :return:
         """
+        # Instead of levenshtein distance, do a fallback with
+        # "-" instead of " " (and vice-verca)
+        # remove all whitespaces
+        # Should probably populate initial dataframe with these items
+
         # Return a single JSON with the given items
         out = self.pricelist[self.pricelist['Partnumber'] == part_no]
-        print("Out it")
-        print(out)
         if len(out) != 0:
-            return out
+            return out.to_dict(orient='records')[0]
+        print("No items found, using levenshtein 1")
         # Else, calculate the hamming distance for all partnumber items, and return the minimum one
         # (if we have hamming-distance less than 3!)
         levenshtein_distances = self.pricelist['Partnumber'].apply(lambda x: Levenshtein.distance(part_no, x)) == 0
         out = self.pricelist[levenshtein_distances == 1]
-        print("Levenshtein distances")
+        print("No items found, using levenshtein 2")
         print(out)
         if len(out) != 0:
-            return out
+            return out.to_dict(orient='records')[0]
         # Not sure if we should allow this
         out = self.pricelist[levenshtein_distances == 2]
-        return out
+        # Return first find
+        return out.to_dict(orient='records')[0]
 
     @property
     def get_partlist(self):

@@ -218,10 +218,10 @@ class EmailWrapper:
 
 
             if not ('payload' in message):
-                return
+                return None
 
             if not ('parts' in message['payload']):
-                return
+                return None
 
             out = []
 
@@ -239,7 +239,7 @@ class EmailWrapper:
                 parts = part['parts']
                 # print("Parts")
                 # del part['headers']
-                out = []
+                # buffer = []
                 for part in parts:
                     # print(part)
                     if part['filename']:
@@ -257,7 +257,7 @@ class EmailWrapper:
 
                         out.append((path, file_data))
 
-            print("Out is: ")
+            print("All found resource are: ")
             for i in out:
                 print(i)
             return out
