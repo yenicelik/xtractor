@@ -65,8 +65,6 @@ if __name__ == '__main__':
         part_json = usp_price_list.get_partnumber_json(part_no=part)
         print("Part json is: ")
 
-
-
         # For each item in the intersection retrieve from the price list and retrieve the individual items
         print("Inserting example excel")
         excel.insert_item(

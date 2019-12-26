@@ -68,6 +68,7 @@ class USExcelTemplate:
             self.sheet.insert_rows(rowidx + 1) # Plus 1 because we insert above, not below the roindex
 
         # Copy the styles of the preivous cells
+        print("Row offset is: ", self.rowcounter)
 
         # Insert "sira"
         style = copy(self.sheet[f'A{self.rowoffset}']._style)
@@ -86,54 +87,40 @@ class USExcelTemplate:
 
         # Listprice
         style = copy(self.sheet[f'I{self.rowoffset}']._style)
-        print("Row offset is: ", self.rowoffset)
-        print("Style is: ", style)
         self.sheet[f'I{rowidx}'] = listprice
         self.sheet[f'I{rowidx}']._style = style
 
         # Replaced by
         style = copy(self.sheet[f'I{self.rowoffset}']._style)
-        print("Row offset is: ", self.rowoffset)
-        print("Style is: ", style)
         self.sheet[f'I{rowidx}'] = listprice
         self.sheet[f'I{rowidx}']._style = style
 
         # Weight
         style = copy(self.sheet[f'I{self.rowoffset}']._style)
-        print("Row offset is: ", self.rowoffset)
-        print("Style is: ", style)
         self.sheet[f'I{rowidx}'] = listprice
         self.sheet[f'I{rowidx}']._style = style
 
         # Stock
         if stock is not None:
             style = copy(self.sheet[f'L{self.rowoffset}']._style)
-            print("Row offset is: ", self.rowoffset)
-            print("Style is: ", style)
             self.sheet[f'L{rowidx}'] = stock
             self.sheet[f'L{rowidx}']._style = style
 
         # Status
         if status is not None:
             style = copy(self.sheet[f'K{self.rowoffset}']._style)
-            print("Row offset is: ", self.rowoffset)
-            print("Style is: ", style)
             self.sheet[f'K{rowidx}'] = status
             self.sheet[f'K{rowidx}']._style = style
 
         # Weight
         if weight is not None:
             style = copy(self.sheet[f'M{self.rowoffset}']._style)
-            print("Row offset is: ", self.rowoffset)
-            print("Style is: ", style)
             self.sheet[f'M{rowidx}'] = weight
             self.sheet[f'M{rowidx}']._style = style
 
         # Replaced
         if replaced is not None:
             style = copy(self.sheet[f'N{self.rowoffset}']._style)
-            print("Row offset is: ", self.rowoffset)
-            print("Style is: ", style)
             self.sheet[f'N{rowidx}'] = replaced
             self.sheet[f'N{rowidx}']._style = style
 

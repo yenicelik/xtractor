@@ -34,7 +34,7 @@ class PDF2Text:
 
             images = convert_from_path(
                 pdf_filepath,
-                dpi=300,
+                # dpi=300,
                 output_folder=path
             )
             print("Images from path")
@@ -46,6 +46,8 @@ class PDF2Text:
                 # Now with the image, do something!
                 print('width =', img.width)
                 print('height =', img.height)
+
+                # Should we do some deblurring perhaps..?
 
                 # print('pages = ', len(img.sequence))
                 # print('resolution = ', img.resolution)

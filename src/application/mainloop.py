@@ -82,8 +82,17 @@ if __name__ == "__main__":
             ###############################
             print("Creating answer to RFP Excel...")
             matching_parts = extract_union_special_items(plaintext)
+            print("Matching parts are")
+            print(matching_parts)
+
+
+
+            exit(0)
+
             excel = USExcelTemplate()
             for part_json in matching_parts:
+                print("Inserting")
+                print(part_json)
                 excel.insert_item(
                     partnumber=part_json['Partnumber'].values[0],
                     description=part_json['Description'].values[0],

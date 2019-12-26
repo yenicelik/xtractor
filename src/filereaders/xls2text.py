@@ -18,8 +18,6 @@ class XLS2Text:
 
         # Iterate through all sheets
 
-        fulltext = []
-
         # Otherwise we can also save and load from disk
         # if this is not successful...
 
