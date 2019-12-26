@@ -5,18 +5,10 @@
 """
 # !/usr/bin/python
 # coding: utf-8
+import tempfile
 
-from pdf2image import convert_from_path
-from wand.image import Image
-
-# from PIL import Image
 import pytesseract
-
-from pdf2image.exceptions import (
-    PDFInfoNotInstalledError,
-    PDFPageCountError,
-    PDFSyntaxError
-)
+from pdf2image import convert_from_path
 
 from src.resources.union_special_excel import USExcelTemplate
 from src.resources.union_special_list import usp_price_list
@@ -25,9 +17,6 @@ if __name__ == '__main__':
     print("Starting to extract text")
 
     print(usp_price_list.get_partlist_as_set)
-
-
-    import tempfile
 
     fulltext = []
 
@@ -79,7 +68,7 @@ if __name__ == '__main__':
 
 
         # For each item in the intersection retrieve from the price list and retrieve the individual items
-        print("Inserting example exel")
+        print("Inserting example excel")
         excel.insert_item(
             partnumber=part_json['Partnumber'].values[0],
             description=part_json['Description'].values[0],

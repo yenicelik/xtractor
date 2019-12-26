@@ -30,12 +30,6 @@ class EmailWrapper:
         :return: service: Authorized Gmail API service instance.
         """
         SCOPES = [
-            # 'https://www.googleapis.com/auth/gmail.send',
-            # 'https://www.googleapis.com/auth/gmail.compose',
-            # 'https://www.googleapis.com/auth/gmail.labels',
-            # 'https://www.googleapis.com/auth/gmail.modify',
-            # 'https://www.googleapis.com/auth/gmail.readonly',
-            # 'https://www.googleapis.com/auth/gmail.send'
             'https://mail.google.com/'
         ]
         # Change this to an env variable
@@ -190,17 +184,6 @@ class EmailWrapper:
         except errors.HttpError as error:
             print('An error occurred: %s' % error)
 
-    # def get_message(self, msg_id):
-    #     try:
-    #         message = self.service.users().messages().get(userId=self.user_id, id=msg_id).execute()
-    #
-    #         print('Message snippet: %s' % message['snippet'])
-    #
-    #         return message
-    #
-    #     except errors.HttpError as error:
-    #         print('An error occurred: %s' % error)
-
     def parse_body_plaintext(self, payload):
         """
             From the given e-mail, parse all parts into one bytestring, to then convert this bytestring into utf-8
@@ -272,9 +255,7 @@ class EmailWrapper:
                         file_data = base64.urlsafe_b64decode(data.encode('UTF-8'))
                         path = part['filename']
 
-                        out.append(
-                            (path, file_data)
-                        )
+                        out.append((path, file_data))
 
             print("Out is: ")
             for i in out:
