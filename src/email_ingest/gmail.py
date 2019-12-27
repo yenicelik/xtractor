@@ -3,10 +3,15 @@
 """
 
 # If modifying these scopes, delete the file token.pickle.
+import datetime
+import mimetypes
 import os
 import base64
 import email
+import random
 import re
+from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
 
 from email.mime.text import MIMEText
 
@@ -24,6 +29,22 @@ class EmailWrapper:
     """
         Includes and logic which gets and send e-mails.
     """
+
+    def get_email_sender(self, msg_id):
+        message = self.service.users().messages().get(userId=self.user_id, id=msg_id).execute()
+        payload = message['payload']  # get payload of the message
+        header = payload['headers']  # get header of the payload
+
+        for item in header:  # getting the Sender
+            if item['name'] == 'From':
+                msg_from = item['value']
+                msg_from = msg_from[msg_from.find("<")+1:msg_from.find(">")]
+                return msg_from
+            else:
+                # Perhaps fallback to david@theaicompany.com?
+                pass
+
+        assert False, ("No sender found! Cannot respond to anyone ...", header)
 
     def _service_account_login(self):
         """
@@ -92,19 +113,65 @@ class EmailWrapper:
         self._email_subject = 'Seasons greetings!'
         self._email_content = 'Teklif is attached'
 
-    def create_message(self, message_text):
+    # def create_message(self, message_text, attachments):
+    #     """Create a message for an email.
+    #     :param message_text: The text of the email message.
+    #     :param message_text: A list of attachments to be sent by email.
+    #     :returns: An object containing a base64url encoded email object.
+    #     """
+    #     message = MIMEText(message_text)
+    #     message['to'] = self.email_to
+    #     message['from'] = self.email_from
+    #     message['subject'] = self.email_subject
+    #     # How to encode attachments ?
+    #     b64_bytes = base64.urlsafe_b64encode(message.as_bytes())
+    #     b64_string = b64_bytes.decode()
+    #     return {'raw': b64_string}
+
+    def create_message_with_attachment(
+            self,
+            content_bytestr
+    ):
         """Create a message for an email.
-        :param message_text: The text of the email message.
-        :returns: An object containing a base64url encoded email object.
+
+        Args:
+          sender: Email address of the sender.
+          to: Email address of the receiver.
+          subject: The subject of the email message.
+          message_text: The text of the email message.
+          file: The path to the file to be attached.
+
+        Returns:
+          An object containing a base64url encoded email object.
         """
-        message = MIMEText(message_text)
+        message = MIMEMultipart()
         message['to'] = self.email_to
         message['from'] = self.email_from
         message['subject'] = self.email_subject
-        # How to encode attachments ?
-        b64_bytes = base64.urlsafe_b64encode(message.as_bytes())
-        b64_string = b64_bytes.decode()
-        return {'raw': b64_string}
+        message.add_header('User-Agent', 'Apple Mail OSX Email Client gzip')
+        message.add_header('Accept-Encoding', 'gzip')
+
+        message_text = random.choice([
+                "Merhabalar. Excel'i ek dosyada bul.",
+                "Selam Cengiz Bey."
+        ])
+
+        msg = MIMEText(message_text)
+        message.attach(msg)
+
+        print("File is")
+        print(content_bytestr)
+        print(type(content_bytestr))
+
+        content_type = 'application/vnd.ms-excel'
+        main_type, sub_type = content_type.split('/', 1)
+
+        msg = MIMEBase(main_type, sub_type)
+        msg.set_payload(content_bytestr)
+        msg.add_header('Content-Disposition', 'attachment', filename='BM_{}.xlsx'.format(datetime.date.today().strftime("%d.%m.%Y")))
+        message.attach(msg)
+
+        return {'raw': base64.urlsafe_b64encode(message.as_bytes()).decode()}
 
     def send_message(self, message):
         """Send an email message.
@@ -113,6 +180,8 @@ class EmailWrapper:
         Returns:
           Sent Message.
         """
+        print("Email to is set to", self.email_to)
+        print(message)
         try:
             message = self.service.users().messages().send(userId=self.user_id, body=message)
             message.execute()

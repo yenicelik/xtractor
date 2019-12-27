@@ -9,6 +9,15 @@ from src.filereaders.xls2text import XLS2Text
 from src.resources.union_special_excel import USExcelTemplate
 from src.resources.union_special_list import usp_price_list
 
+email_whitelist = [
+    'david.yenicelk@gmail.com',
+    'baker@bakermagnetics.com.tr',
+    'auguryenicelik@hotmail.com',
+    'mcyenicelik@hotmail.com',
+    'mcyenicelik@bakermagnetics.com.tr',
+    'baker@bakermagnetics.com.tr',
+    'segaslp@gmail.com'
+]
 
 def handle_datasources(datasources):
     """
@@ -50,10 +59,9 @@ def extract_union_special_items(fulltext):
 
 def _represents_int(s):
     try:
-        int(s)
-        return s
+        return int(s)
     except ValueError:
-        return None
+        return 1
 
 def get_unit_number(fulltext_string, part_number):
     # Split the fulltext by whitespaces
@@ -77,14 +85,14 @@ def get_unit_number(fulltext_string, part_number):
         print("Candidate 1 and 2 are", candidate1, candidate2)
         if len(candidate1) <= 2:
             units = _represents_int(candidate1)
-            if units is not None:
+            if units < 30:
                 return units
         if len(candidate2) <= 2:
             units = _represents_int(candidate1)
-            if units is not None:
+            if units < 30:
                 return units
 
-    return 0
+    return 1
 
 
 if __name__ == "__main__":
@@ -114,6 +122,14 @@ if __name__ == "__main__":
             # EXTRACT FULL PLAINTEXT
             ###############################
             print("Retrieving OCR or fulltext")
+            sender = email_service.get_email_sender(msg_id=message_idx)
+            email_service.set_email_to(sender)
+
+            # Continue if email from is not whitelisted..
+            if not (email_service.email_to in email_whitelist):
+                print("Email not whitelisted!!!", email_service.email_to)
+                continue
+
             attachments = email_service.get_message_with_attachments(msg_id=message_idx)
 
             if attachments is None:
@@ -137,7 +153,7 @@ if __name__ == "__main__":
                 print(part_json)
 
                 # Identify the unit number
-                units = 0 # get_unit_number(plaintext, part_json['Partnumber']) # Will comment out for now because not very stable
+                units = get_unit_number(plaintext, part_json['Partnumber']) # Will comment out for now because not very stable
 
                 excel.insert_item(
                     partnumber=part_json['Partnumber'],
@@ -150,10 +166,20 @@ if __name__ == "__main__":
                     replaced=part_json['Replaced']
                 )
 
+            excel.update_date()
+
+            # Instead of saving to disk, generate a new email...
+            message = email_service.create_message_with_attachment(
+                content_bytestr=excel.get_bytestring()
+            )
+
+            print("Sending e-mail and marking as read...")
+            # Send email to from person lol
+            email_service.send_message(message=message)
+
             # Instead of saving to disk, we need to send the email ....
             excel.save_to_disk()
 
-            print("Sending e-mail and marking as read...")
 
             # We might want to mark individual items as read before,
             # just in case it creates a crash in the server...
