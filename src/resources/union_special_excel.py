@@ -53,6 +53,7 @@ class USExcelTemplate:
             description,
             partnumber,
             listprice,
+            requested_units,
             stock=None,
             status=None,
             weight=None,
@@ -97,6 +98,10 @@ class USExcelTemplate:
         self.sheet[f'I{rowidx}'] = listprice
         self.sheet[f'I{rowidx}']._style = style
 
+        style = copy(self.sheet[f'B{previous_row}']._style)
+        self.sheet[f'B{rowidx}'] = requested_units
+        self.sheet[f'B{rowidx}']._style = style
+
         # Stock
         if stock is not None:
             style = copy(self.sheet[f'L{previous_row}']._style)
@@ -136,7 +141,7 @@ class USExcelTemplate:
         self.sheet[f'H{rowidx}']._style = style
 
         # Copy cell style for "dead cells
-        for deadcol in ['B', 'C', 'G']:
+        for deadcol in ['C', 'G']:
             style = copy(self.sheet[f'{deadcol}{previous_row}']._style)
             self.sheet[f'{deadcol}{rowidx}']._style = style
 
@@ -151,7 +156,8 @@ class USExcelTemplate:
 
     def save_to_disk(self):
         rnd_no = random.randint(10000, 99999)
-        self.workbook.save(f"./test{rnd_no}.xlsx")
+        # self.workbook.save(f"./test{rnd_no}.xlsx")
+        self.workbook.save(f"./test1.xlsx")
 
 if __name__ == "__main__":
     print("Looking at the individual items")

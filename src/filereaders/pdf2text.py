@@ -5,6 +5,7 @@
 
 import tempfile
 import pytesseract
+import cv2
 from pdf2image import convert_from_path
 
 from pdf2image.exceptions import (
@@ -35,7 +36,8 @@ class PDF2Text:
             images = convert_from_path(
                 pdf_filepath,
                 # dpi=300,
-                output_folder=path
+                output_folder=path,
+                grayscale=True
             )
             print("Images from path")
             print(images)
@@ -54,9 +56,14 @@ class PDF2Text:
 
                 # Resize for uniform treatment
                 # Rotate the image four times, collect text from all items ...
+                # img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
                 for rotation_degree in [0, 90, 270]:
-                    text = pytesseract.image_to_string(img.rotate(rotation_degree))
+
+                    text = pytesseract.image_to_string(
+                        img.rotate(rotation_degree),
+                        config='-l eng' # --psm
+                    )
                     fulltext.append(text)
 
         fulltext = "\n".join(fulltext).strip()

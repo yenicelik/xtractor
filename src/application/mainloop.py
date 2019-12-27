@@ -48,6 +48,44 @@ def extract_union_special_items(fulltext):
         out.append(part_json)
     return out
 
+def _represents_int(s):
+    try:
+        int(s)
+        return s
+    except ValueError:
+        return None
+
+def get_unit_number(fulltext_string, part_number):
+    # Split the fulltext by whitespaces
+    tokens = fulltext_string.split(" ")
+    # Identify index of occurence
+    print("Part number is", part_number)
+    idx = tokens.index(part_number)
+    print("Identified token is: ", tokens[idx])
+    print("Identified token is: ", tokens[idx-20:idx+20])
+    print("Identified token is: ", tokens[idx-50:idx+50])
+    if idx == -1:
+        return 0
+    # move from idx and find best occuring number (2 digits)
+    # do not move past 20 tokens away from the unit for the unit number
+    for i in range(1, 50):
+        # You could probably implement this in a more efficient manner using convolutions...
+        # Convolution 1
+        candidate1 = str(tokens[idx + i])
+        # Convolution 2
+        candidate2 = str(tokens[idx - i])
+        print("Candidate 1 and 2 are", candidate1, candidate2)
+        if len(candidate1) <= 2:
+            units = _represents_int(candidate1)
+            if units is not None:
+                return units
+        if len(candidate2) <= 2:
+            units = _represents_int(candidate1)
+            if units is not None:
+                return units
+
+    return 0
+
 
 if __name__ == "__main__":
     print("Starting program...")
@@ -97,10 +135,15 @@ if __name__ == "__main__":
             for part_json in matching_parts:
                 print("Inserting")
                 print(part_json)
+
+                # Identify the unit number
+                units = 0 # get_unit_number(plaintext, part_json['Partnumber']) # Will comment out for now because not very stable
+
                 excel.insert_item(
                     partnumber=part_json['Partnumber'],
                     description=part_json['Description'],
                     listprice=part_json['Price'],
+                    requested_units=units,
                     stock=part_json['Stock'],
                     status=part_json['Status'],
                     weight=part_json['Weight'],
