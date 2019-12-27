@@ -98,6 +98,7 @@ class USExcelTemplate:
         self.sheet[f'I{rowidx}'] = listprice
         self.sheet[f'I{rowidx}']._style = style
 
+        # Number Units
         style = copy(self.sheet[f'B{previous_row}']._style)
         self.sheet[f'B{rowidx}'] = requested_units
         self.sheet[f'B{rowidx}']._style = style
