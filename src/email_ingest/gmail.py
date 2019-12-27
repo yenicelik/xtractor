@@ -10,10 +10,13 @@ import base64
 import email
 import random
 import re
+from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 
 from email.mime.text import MIMEText
+from io import BytesIO
+from tempfile import NamedTemporaryFile
 
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
@@ -113,21 +116,6 @@ class EmailWrapper:
         self._email_subject = 'Seasons greetings!'
         self._email_content = 'Teklif is attached'
 
-    # def create_message(self, message_text, attachments):
-    #     """Create a message for an email.
-    #     :param message_text: The text of the email message.
-    #     :param message_text: A list of attachments to be sent by email.
-    #     :returns: An object containing a base64url encoded email object.
-    #     """
-    #     message = MIMEText(message_text)
-    #     message['to'] = self.email_to
-    #     message['from'] = self.email_from
-    #     message['subject'] = self.email_subject
-    #     # How to encode attachments ?
-    #     b64_bytes = base64.urlsafe_b64encode(message.as_bytes())
-    #     b64_string = b64_bytes.decode()
-    #     return {'raw': b64_string}
-
     def create_message_with_attachment(
             self,
             content_bytestr
@@ -159,17 +147,20 @@ class EmailWrapper:
         msg = MIMEText(message_text)
         message.attach(msg)
 
-        print("File is")
+        print("Content bytestring")
         print(content_bytestr)
         print(type(content_bytestr))
 
-        content_type = 'application/vnd.ms-excel'
-        main_type, sub_type = content_type.split('/', 1)
+        # Write to temporary file the bytestring
+        msg = MIMEBase('application', 'vnd.ms-excel')
+        msg.set_payload(content_bytestr)
+        encoders.encode_base64(msg)
 
-        # msg = MIMEBase(main_type, sub_type)
-        # msg.set_payload(content_bytestr)
-        # msg.add_header('Content-Disposition', 'attachment', filename='BM_{}.xlsx'.format(datetime.date.today().strftime("%d.%m.%Y")))
-        # message.attach(msg)
+        print("Attaching file...")
+        msg.add_header('Content-Disposition', 'attachment', filename='BM_{}.xlsx'.format(datetime.date.today().strftime("%d.%m.%Y")))
+        message.attach(msg)
+        print(msg)
+        print(message)
 
         return {'raw': base64.urlsafe_b64encode(message.as_bytes()).decode()}
 

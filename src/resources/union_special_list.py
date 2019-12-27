@@ -9,37 +9,6 @@ import Levenshtein
 
 class USPriceList:
 
-    # def _populate_space_to_hyphen(self, df):
-    #     tmp_df = df[df['Partnumber'].filter(regex=r'^(?!\s+$).+')]
-    #     # Replace space with hyphen
-    #     tmp_df['Partnumber'] = tmp_df['Partnumber'].apply(lambda x: str(x).replace(' ', '-'))
-    #     return tmp_df
-    #
-    # def _populate_hyphen_to_space(self, df):
-    #     tmp_df = df[df['Partnumber'].filter(regex=r'\b-\b')]
-    #     # Replace space with hyphen
-    #     tmp_df['Partnumber'] = tmp_df['Partnumber'].apply(lambda x: str(x).replace('-', ' '))
-    #     return tmp_df
-    #
-    # def _populate_remove_hyphen(self, df):
-    #     tmp_df = df[df['Partnumber'].filter(regex=r'\b-\b')]
-    #     # Replace space with hyphen
-    #     tmp_df['Partnumber'] = tmp_df['Partnumber'].apply(lambda x: str(x).replace('-', ''))
-    #     return tmp_df
-    #
-    # def _populate_remove_space(self, df):
-    #     tmp_df = df[df['Partnumber'].filter(regex=r'^(?!\s+$).+')]
-    #     # Replace space with hyphen
-    #     tmp_df['Partnumber'] = tmp_df['Partnumber'].apply(lambda x: str(x).replace(' ', ''))
-    #     return tmp_df
-    #
-    # # Introduce space before last 2 characters
-    # def _populate_split_last_few_characters(self, df):
-    #     tmp_df = df[df['Partnumber'].filter(lambda )]
-    #     # Replace space with hyphen
-    #     tmp_df['Partnumber'] = tmp_df['Partnumber'].apply(lambda x: str(x).replace(' ', ''))
-    #     return tmp_df
-
     def _load_pricelist(self):
         filepath = "/Users/david/xtractor/data/UnionSpecial/Spare Parts EDC with Stock_11_2019.xls"
         df = pd.read_excel(filepath)
