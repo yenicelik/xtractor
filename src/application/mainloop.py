@@ -93,6 +93,7 @@ if __name__ == "__main__":
             print(matching_parts)
 
             excel = USExcelTemplate()
+            matching_parts = list(sorted(matching_parts, key=lambda x: x['Partnumber']))
             for part_json in matching_parts:
                 print("Inserting")
                 print(part_json)

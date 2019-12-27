@@ -319,33 +319,3 @@ if __name__ == "__main__":
         # mark_as_read(service, 'me', message_idx)
         # email_wrapper.get_message(msg_id=message_idx)
         email_wrapper.get_message_with_attachments(msg_id=message_idx)
-
-    # a = {'id': '16f3ec90b8b8c61b', 'threadId': '16f3ec90b8b8c61b',
-    #      'historyId': '1442758',
-    #      'internalDate': '1577306354000',
-    #      'payload': {
-    #          'partId': '', 'mimeType': 'multipart/mixed', 'filename': '',
-    #          'body': {'size': 0},
-    #          'parts': [
-    #              {'partId': '0', 'mimeType': 'text/plain', 'filename': '',
-    #               'body': {'size': 41, 'data': 'U2VuZGluZyBhdHRhY2htZW50IGZyb20gVW5pb24gU3BlY2lhbA0KDQo='}},
-    #              {'partId': '1', 'mimeType': 'application/pdf', 'filename': 'sample2.pdf',
-    #               'body': {
-    #                   'attachmentId': 'ANGjdJ9OTzYp0vu1hVzlHhE6I2CdEDpcR9r8F2hthQ1PtR3-V-g_yxz_rTAthGMa_R7IqMKYVWQiRzXQClWCdzQwcd6TPqY588HZl1lkXQhCsvuT37ZOEbqHm7X0Pkdq1Dl6bypmcWsiiiAIb9TN8oXEtkfvGEGI93KhYSwZjeHi_JQZIqKatq7bUTM7vWUaxlY2QN7F0C-V-oE6PZ4gfC3yDrEWdXgiF9kXSut7Z970-PNxaxrV0yCm8smGlo_aioVuHqv5Gwxu9UsZj3J744zzJduUGh7NDOKYXaxG8_YE5SrjaUok-hnTGwqBCOvTSbLaUjlpXrDjyFjDusbDKHWbGLvr4QJLvhZFt24iruABuQEDUGkcqJE-JmSMBDU',
-    #                   'size': 56056}}]}, 'sizeEstimate': 82339}
-
-    a = {'partId': '',
-         'mimeType': 'multipart/mixed',
-         'filename': '',
-         'body': {'size': 0},
-         'parts': [
-             {'partId': '0', 'mimeType': 'text/plain', 'filename': '',
-              'headers': [{'name': 'Content-Transfer-Encoding', 'value': '7bit'},
-                          {'name': 'Content-Type', 'value': 'text/plain; charset=us-ascii'}],
-              'body': {'size': 41, 'data': 'U2VuZGluZyBhdHRhY2htZW50IGZyb20gVW5pb24gU3BlY2lhbA0KDQo='}},
-             {'partId': '1', 'mimeType': 'application/pdf', 'filename': 'sample2.pdf',
-              'headers': [{'name': 'Content-Disposition', 'value': 'inline; filename=sample2.pdf'},
-                          {'name': 'Content-Type', 'value': 'application/pdf; x-unix-mode=0644; name="sample2.pdf"'},
-                          {'name': 'Content-Transfer-Encoding', 'value': 'quoted-printable'}], 'body': {
-                 'attachmentId': 'ANGjdJ93LWuw9dIWi_EiPYMWqukxTbbULncOEH5IWDWsWA4XL3wN4Iu0qlxTTaMtPg-nTY1L3NmUF3BQuGIPMg9gokwOUcxl3mnEkydxVor6LuJ0GS5AZ-wpTT4bHaWzYCAEnfpPSKhmfLm7yvaEl6FgTh7CLlOP2wibZIDQGkK_-jalhCRiGFVrt5edPa2gjajcdPqbQwoBhbWOmHAabrQf_bq8p5Rr4VkS3tNKnCAyvob_dqBZHsR1dcDaXkWqNH9NG76-YwbujLohDjl8us7ljrSbY16vHUt_pJUlF2vLmvGlJQICxsrHHK8bn-ZZ0UCASZChHLS9hvAPnakWb3Zmo-Lev_WWcljJJzSe09flFXNEN4c4lmGMAfbo2Wk',
-                 'size': 56056}}]}
