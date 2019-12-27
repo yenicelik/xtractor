@@ -174,6 +174,20 @@ class USExcelTemplate:
         self.workbook.save(f"./test{rnd_no}.xlsx")
         # self.workbook.save(f"./test1.xlsx")
 
+    def save_to_disk_from_bytes(self):
+        """
+            Checks if byteencoding makes it unreadable or not
+        :return:
+        """
+        rnd_no = random.randint(1000, 9999)
+        with NamedTemporaryFile() as tmp:
+            with open(f"./test{rnd_no}.xlsx", "wb") as fp:
+                self.workbook.save(tmp.name)
+
+                output = BytesIO(tmp.read())
+                # Write to tmp file
+                fp.write(output.read())
+
     def get_bytestring(self):
         # output = StringIO()
         # self.workbook.save(output)

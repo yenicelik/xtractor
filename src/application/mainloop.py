@@ -178,7 +178,8 @@ if __name__ == "__main__":
             email_service.send_message(message=message)
 
             # Instead of saving to disk, we need to send the email ....
-            excel.save_to_disk()
+            # excel.save_to_disk()
+            excel.save_to_disk_from_bytes()
 
 
             # We might want to mark individual items as read before,

@@ -166,10 +166,10 @@ class EmailWrapper:
         content_type = 'application/vnd.ms-excel'
         main_type, sub_type = content_type.split('/', 1)
 
-        msg = MIMEBase(main_type, sub_type)
-        msg.set_payload(content_bytestr)
-        msg.add_header('Content-Disposition', 'attachment', filename='BM_{}.xlsx'.format(datetime.date.today().strftime("%d.%m.%Y")))
-        message.attach(msg)
+        # msg = MIMEBase(main_type, sub_type)
+        # msg.set_payload(content_bytestr)
+        # msg.add_header('Content-Disposition', 'attachment', filename='BM_{}.xlsx'.format(datetime.date.today().strftime("%d.%m.%Y")))
+        # message.attach(msg)
 
         return {'raw': base64.urlsafe_b64encode(message.as_bytes()).decode()}
 
