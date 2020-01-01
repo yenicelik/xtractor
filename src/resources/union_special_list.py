@@ -48,6 +48,7 @@ class USPriceList:
 
         # Remove all whitespaces from the partno
         df['Partnumber'] = df['Partnumber'].apply(lambda x: x.strip())
+        # df['Partnumber'] = df['Partnumber'].apply(lambda x: x.replace(' ', ""))
         df['Price'] = df['Price'].apply(lambda x: float(x))
         print("Listprice is:")
         print(df['Price'])

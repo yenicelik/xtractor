@@ -48,6 +48,42 @@ def handle_datasources(datasources):
     return out
 
 def extract_union_special_items(fulltext):
+    union_special_item_set = usp_price_list.get_partlist_as_set
+
+    # q = [set(x) for x in union_special_items]
+    acceptable_chars = set()
+    print("Iterating")
+    for word in union_special_item_set:
+        if ' ' in word:
+            print(word)
+        wordset = set(word)
+        acceptable_chars = acceptable_chars.union(wordset)
+
+
+    print("Union special parts")
+    print(union_special_item_set)
+
+    featureset1 = fulltext
+    featureset2 = fulltext.replace(" ", "")
+    featureset3 = fulltext.replace(" ", "-")
+    featureset4 = fulltext.replace("-", "")
+    featureset5 = fulltext.replace("-", " ")
+
+    full_featureset = featureset1 + featureset2 + featureset3 + featureset4 + featureset5
+
+    # For all parts, detect if they are included
+    found_items = [x for x in list(union_special_item_set) if x in full_featureset]
+
+    # fulltext = fulltext.
+    print("Fulltext is", full_featureset)
+
+    print("Acceptable characters are", acceptable_chars)
+
+    print("Found items are")
+    print(found_items)
+
+    exit(0)
+
     fulltext = set(fulltext.split())
     matching_parts = fulltext.intersection(usp_price_list.get_partlist_as_set)
     out = []
