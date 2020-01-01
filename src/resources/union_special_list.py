@@ -1,18 +1,26 @@
 """
     Imports the Union Special Parts list
 """
+import sys
+
 import pandas as pd
 pd.set_option('display.max_columns', 100)
 
 import Levenshtein
 
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class USPriceList:
 
     def _load_pricelist(self):
-        filepath = "/Users/david/xtractor/data/UnionSpecial/Spare Parts EDC with Stock_11_2019.xls"
-        df = pd.read_excel(filepath)
-        print(df.head())
+        filepath = os.getenv('UNSP_PRICELIST')
+        df = pd.read_excel(filepath, encoding="utf-8") #sys.getfilesystemencoding())
+        # df = df.encode("utf-8")
+        # print(df.head())
         df = df[[
             'Partnumber',
             'Beschreibung',
@@ -26,6 +34,8 @@ class USPriceList:
             'Shortcut',
             'HS Code'
         ]]
+        # for col in df.columns:
+        #     df[col] = df[col].encode("utf-8")
         print(df.head())
         df = df.rename(columns={'Price €': 'Price', 'Weight in g': 'Weight', 'Replaced by': 'Replaced', 'HS Code': 'HSCode'})
         df = df[3:]
