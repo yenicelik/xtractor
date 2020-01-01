@@ -96,7 +96,7 @@ class EmailWrapper:
         """
             sender: Email address of the sender.
         """
-        return 'david@theaicompany.com'
+        return 'bakermagnetics@theaicompany.com'
 
     @property
     def user_id(self):
@@ -147,8 +147,10 @@ class EmailWrapper:
         message.add_header('Accept-Encoding', 'gzip')
 
         message_text = random.choice([
-                "Merhabalar. Excel'i ek dosyada bul.",
-                "Selam Cengiz Bey."
+                "Merhabalar, \n\n"
+                "Excel ek-dosyada bulunabilir. "
+                "\nGeribilirdirim ve ürün-fikirleri icin david@theaicompany.com 'a yazin "
+                "\n\n Saygilarla, \nBM Baker Magnetics AI Robot \n\n"
         ])
 
         msg = MIMEText(message_text)
