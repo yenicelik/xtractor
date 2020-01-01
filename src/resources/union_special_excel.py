@@ -1,29 +1,14 @@
 """
     Union special excel template
 """
+import datetime
 import random
+from io import BytesIO
+from tempfile import NamedTemporaryFile
 
 import numpy as np
 from copy import copy
 from openpyxl import load_workbook
-
-def _write_value_to_cell(cell_identifier, style_cell_identifier, value):
-    """
-        Preserves style when writing to the cell
-    :param cell_identifier:
-    :param value:
-    :return:
-    """
-    # new_cell.font = copy(cell.font)
-    # new_cell.border = copy(cell.border)
-    # new_cell.fill = copy(cell.fill)
-    # new_cell.number_format = copy(cell.number_format)
-    # new_cell.protection = copy(cell.protection)
-    # new_cell.alignment = copy(cell.alignment)
-    # self.sheet[f'A{rowidx}'] = self.rowcounter + 1
-    # self.sheet[f'A{rowidx}'].style = style
-    # new_cell.font = copy(cell.font)
-    pass
 
 class USExcelTemplate:
 
@@ -46,7 +31,12 @@ class USExcelTemplate:
         self.rowoffset = 17  # the enumeration of items starts at row 17
 
     def update_date(self):
-        pass
+        style = copy(self.sheet[f'H10']._style)
+        self.sheet[f'H10'] = '{}'.format(datetime.date.today().strftime("%d.%m.%Y"))
+        self.sheet[f'H10']._style = style
+        style = copy(self.sheet[f'H11']._style)
+        self.sheet[f'H11'] = '{}'.format(datetime.date.today().strftime("%d.%m.%Y"))
+        self.sheet[f'H11']._style = style
 
     def insert_item(
             self,
@@ -66,7 +56,7 @@ class USExcelTemplate:
 
         rowidx = self.rowcounter + self.rowoffset
 
-        print("Row id is", rowidx)
+        # print("Row id is", rowidx)
 
         # Insert a row
         if self.rowcounter > 0:
@@ -75,13 +65,15 @@ class USExcelTemplate:
         else:
             previous_row = rowidx
 
-        # Copy the styles of the preivous cells
-        print("Row offset is: ", self.rowcounter)
-
         # Insert "sira"
         style = copy(self.sheet[f'A{previous_row}']._style)
-        self.sheet[f'A{rowidx}'] = self.sheet[f'A{previous_row}'].value + 1 if self.rowcounter > 0 else 1
+        self.sheet[f'A{rowidx}'] = f'=A{previous_row} + 1' if self.rowcounter > 0 else 1
         self.sheet[f'A{rowidx}']._style = style
+
+        # Reference no.
+        style = copy(self.sheet[f'C{previous_row}']._style)
+        self.sheet[f'C{rowidx}'] = f'=C{previous_row} + 1' if self.rowcounter > 0 else 1
+        self.sheet[f'C{rowidx}']._style = style
 
         # Partnumber
         style = copy(self.sheet[f'D{previous_row}']._style)
@@ -146,8 +138,6 @@ class USExcelTemplate:
             style = copy(self.sheet[f'{deadcol}{previous_row}']._style)
             self.sheet[f'{deadcol}{rowidx}']._style = style
 
-        print("Row id is", rowidx)
-
         self.sheet[f'H{rowidx + 3}'] = f'=SUM(H{self.rowoffset}: H{rowidx})'
         self.sheet[f'H{rowidx + 4}'] = f'=H{rowidx + 3}*25/100'
         self.sheet[f'H{rowidx + 5}'] = f'=H{rowidx + 3}-H{rowidx + 4}'
@@ -156,9 +146,28 @@ class USExcelTemplate:
         self.rowcounter += 1
 
     def save_to_disk(self):
-        rnd_no = random.randint(10000, 99999)
-        # self.workbook.save(f"./test{rnd_no}.xlsx")
-        self.workbook.save(f"./test1.xlsx")
+        rnd_no = random.randint(1000, 9999)
+        self.workbook.save(f"./test{rnd_no}.xlsx")
+
+    def save_to_disk_from_bytes(self):
+        """
+            Checks if byteencoding makes it unreadable or not
+        :return:
+        """
+        rnd_no = random.randint(1000, 9999)
+        with NamedTemporaryFile() as tmp:
+            with open(f"./test{rnd_no}.xlsx", "wb") as fp:
+                self.workbook.save(tmp.name)
+
+                output = BytesIO(tmp.read())
+                # Write to tmp file
+                fp.write(output.read())
+
+    def get_bytestring(self):
+        with NamedTemporaryFile() as tmp:
+            self.workbook.save(tmp.name)
+            output = BytesIO(tmp.read())
+            return output.read()
 
 if __name__ == "__main__":
     print("Looking at the individual items")

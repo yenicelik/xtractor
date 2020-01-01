@@ -9,6 +9,17 @@ from src.filereaders.xls2text import XLS2Text
 from src.resources.union_special_excel import USExcelTemplate
 from src.resources.union_special_list import usp_price_list
 
+email_whitelist = [
+    'david.yenicelk@gmail.com',
+    'segaslp@gmail.com',
+    'baker@bakermagnetics.com.tr',
+    'auguryenicelik@hotmail.com',
+    'mcyenicelik@hotmail.com',
+    'mcyenicelik@bakermagnetics.com.tr',
+    'unionspecialbags@bakermagnetics.com.tr',
+    'unionspecial@bakermagnetics.com.tr',
+    'baker@bakermagnetics.com.tr',
+]
 
 def handle_datasources(datasources):
     """
@@ -42,28 +53,20 @@ def extract_union_special_items(fulltext):
     out = []
     for part in matching_parts:
         part_json = usp_price_list.get_partnumber_json(part_no=part)
-        print("Part json is")
-        print(part_json)
-        print("Part json is", type(part_json), len(part_json))
         out.append(part_json)
     return out
 
 def _represents_int(s):
     try:
-        int(s)
-        return s
+        return int(s)
     except ValueError:
-        return None
+        return 1
 
 def get_unit_number(fulltext_string, part_number):
     # Split the fulltext by whitespaces
     tokens = fulltext_string.split(" ")
     # Identify index of occurence
-    print("Part number is", part_number)
     idx = tokens.index(part_number)
-    print("Identified token is: ", tokens[idx])
-    print("Identified token is: ", tokens[idx-20:idx+20])
-    print("Identified token is: ", tokens[idx-50:idx+50])
     if idx == -1:
         return 0
     # move from idx and find best occuring number (2 digits)
@@ -74,17 +77,17 @@ def get_unit_number(fulltext_string, part_number):
         candidate1 = str(tokens[idx + i])
         # Convolution 2
         candidate2 = str(tokens[idx - i])
-        print("Candidate 1 and 2 are", candidate1, candidate2)
+        # print("Candidate 1 and 2 are", candidate1, candidate2)
         if len(candidate1) <= 2:
             units = _represents_int(candidate1)
-            if units is not None:
+            if units < 30:
                 return units
         if len(candidate2) <= 2:
             units = _represents_int(candidate1)
-            if units is not None:
+            if units < 30:
                 return units
 
-    return 0
+    return 1
 
 
 if __name__ == "__main__":
@@ -114,6 +117,16 @@ if __name__ == "__main__":
             # EXTRACT FULL PLAINTEXT
             ###############################
             print("Retrieving OCR or fulltext")
+            sender = email_service.get_email_sender(msg_id=message_idx)
+            if sender is None:
+                assert False, ("No sender found! Cannot respond to anyone ...", sender)
+            email_service.set_email_to(sender)
+
+            # Continue if email from is not whitelisted..
+            if not (email_service.email_to in email_whitelist):
+                print("Email not whitelisted!!!", email_service.email_to)
+                continue
+
             attachments = email_service.get_message_with_attachments(msg_id=message_idx)
 
             if attachments is None:
@@ -133,11 +146,9 @@ if __name__ == "__main__":
             excel = USExcelTemplate()
             matching_parts = list(sorted(matching_parts, key=lambda x: x['Partnumber']))
             for part_json in matching_parts:
-                print("Inserting")
-                print(part_json)
 
                 # Identify the unit number
-                units = 0 # get_unit_number(plaintext, part_json['Partnumber']) # Will comment out for now because not very stable
+                units = get_unit_number(plaintext, part_json['Partnumber']) # Will comment out for now because not very stable
 
                 excel.insert_item(
                     partnumber=part_json['Partnumber'],
@@ -150,16 +161,15 @@ if __name__ == "__main__":
                     replaced=part_json['Replaced']
                 )
 
-            # Instead of saving to disk, we need to send the email ....
-            excel.save_to_disk()
+            excel.update_date()
+
+            # Instead of saving to disk, generate a new email...
+            message = email_service.create_message_with_attachment(
+                content_bytestr=excel.get_bytestring()
+            )
 
             print("Sending e-mail and marking as read...")
+            email_service.send_message(message=message)
+            email_service.mark_as_read(msg_id=message_idx)
 
-            # We might want to mark individual items as read before,
-            # just in case it creates a crash in the server...
-
-            # mark_as_read(service, 'me', message_idx)
-            # email_wrapper.get_message(msg_id=message_idx)
-
-        exit(0)
         time.sleep(TIME_INTERVAL)
