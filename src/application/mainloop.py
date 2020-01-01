@@ -190,5 +190,4 @@ if __name__ == "__main__":
 
             email_service.mark_as_read(msg_id=message_idx)
 
-        exit(0)
         time.sleep(TIME_INTERVAL)
