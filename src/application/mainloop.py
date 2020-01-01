@@ -54,14 +54,16 @@ def _is_number(s):
     except ValueError:
         return False
 
+def _is_short(x):
+    return len(x) <= 3
+
 def extract_union_special_items(fulltext):
     union_special_item_set = usp_price_list.get_partlist_as_set
 
     # Must be a partition of the set, i.e. a full case distinction
-    simple_union_special_item_seet = [x for x in union_special_item_set if _is_number(x)]
-    complex_union_special_item_seet = [x for x in union_special_item_set if not _is_number(x)]
+    simple_union_special_item_seet = [x for x in union_special_item_set if (_is_number(x) or _is_short(x))]
+    complex_union_special_item_seet = [x for x in union_special_item_set if not (_is_number(x) or _is_short(x))]
 
-    # q = [set(x) for x in union_special_items]
     acceptable_chars = set()
     print("Iterating")
     for word in union_special_item_set:
