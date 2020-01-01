@@ -4,19 +4,15 @@
 
 # If modifying these scopes, delete the file token.pickle.
 import datetime
-import mimetypes
 import os
 import base64
 import email
 import random
-import re
 from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 
 from email.mime.text import MIMEText
-from io import BytesIO
-from tempfile import NamedTemporaryFile
 
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
@@ -38,16 +34,19 @@ class EmailWrapper:
         payload = message['payload']  # get payload of the message
         header = payload['headers']  # get header of the payload
 
+        msg_from = None
         for item in header:  # getting the Sender
             if item['name'] == 'From':
                 msg_from = item['value']
                 msg_from = msg_from[msg_from.find("<")+1:msg_from.find(">")]
-                return msg_from
-            else:
-                # Perhaps fallback to david@theaicompany.com?
-                pass
 
-        assert False, ("No sender found! Cannot respond to anyone ...", header)
+            if item['name'] == 'Subject':
+                self._email_subject = item['value']
+
+            if item['name'] == 'Message-Id':
+                self._email_message_id = item['value']
+
+        return msg_from
 
     def _service_account_login(self):
         """
@@ -116,6 +115,10 @@ class EmailWrapper:
         self._email_subject = 'Seasons greetings!'
         self._email_content = 'Teklif is attached'
 
+        self._email_message_id = None
+        self._references = None
+        self._thread_id = None
+
     def create_message_with_attachment(
             self,
             content_bytestr
@@ -133,9 +136,13 @@ class EmailWrapper:
           An object containing a base64url encoded email object.
         """
         message = MIMEMultipart()
-        message['to'] = self.email_to
-        message['from'] = self.email_from
-        message['subject'] = self.email_subject
+        message['To'] = self.email_to
+        message['From'] = self.email_from
+        message['In-Reply-To'] = self._email_message_id
+        message['References'] = self._email_message_id
+        message['Subject'] = self.email_subject
+        message['threadId'] = self._thread_id
+
         message.add_header('User-Agent', 'Apple Mail OSX Email Client gzip')
         message.add_header('Accept-Encoding', 'gzip')
 
@@ -147,20 +154,13 @@ class EmailWrapper:
         msg = MIMEText(message_text)
         message.attach(msg)
 
-        print("Content bytestring")
-        print(content_bytestr)
-        print(type(content_bytestr))
-
         # Write to temporary file the bytestring
         msg = MIMEBase('application', 'vnd.ms-excel')
         msg.set_payload(content_bytestr)
         encoders.encode_base64(msg)
 
-        print("Attaching file...")
         msg.add_header('Content-Disposition', 'attachment', filename='BM_{}.xlsx'.format(datetime.date.today().strftime("%d.%m.%Y")))
         message.attach(msg)
-        print(msg)
-        print(message)
 
         return {'raw': base64.urlsafe_b64encode(message.as_bytes()).decode()}
 
@@ -171,13 +171,9 @@ class EmailWrapper:
         Returns:
           Sent Message.
         """
-        print("Email to is set to", self.email_to)
-        print(message)
         try:
             message = self.service.users().messages().send(userId=self.user_id, body=message)
             message.execute()
-            # print('Message Id: %s' % message['id'])
-            print("Sent ", message)
             return message
         except errors.HttpError as error:
             print('An error occurred: %s' % error)
@@ -234,8 +230,11 @@ class EmailWrapper:
           Message contents to be read, including any attachments.
         """
         try:
-            message = self.service.users().messages().modify(user_id=self.user_id, id=msg_id,
-                                                             body={"removeLabelIds": ['UNREAD']})
+            message = self.service.users().messages().modify(
+                userId=self.user_id,
+                id=msg_id,
+                body={"removeLabelIds": ['UNREAD']}
+            )
             message.execute()
 
             print('Message make read snippet: %s' % message)
@@ -274,14 +273,13 @@ class EmailWrapper:
         try:
             message = self.service.users().messages().get(userId=self.user_id, id=msg_id).execute()
 
-            print("Message is: ")
-            print(message)
-
             if not ('payload' in message):
                 return None
 
             if not ('parts' in message['payload']):
                 return None
+
+            self._thread_id = message['threadId']
 
             out = []
 
@@ -291,25 +289,14 @@ class EmailWrapper:
                 ('plaintext', plaintext)
             )
 
-            print("Does payload have parts?")
-            print(message['payload'])
-            print(message['payload']['parts'])
-
-            print("Now treating single attachments ... ")
-
             # Do it for single-itemed attachments ...
             for _part in message['payload'].get('parts', ''):
-                print("Yes!")
-                print(_part)
-                print("Continuing")
                 part = _part
                 # turn into a dict...
                 if part['filename']:
                     if 'data' in part['body']:
-                        print("Getting body data11")
                         data = part['body']['data']
                     else:
-                        print("Retrieving attachment11")
                         att_id = part['body']['attachmentId']
                         att = self.service.users().messages().attachments().get(
                             userId=self.user_id,
@@ -323,8 +310,6 @@ class EmailWrapper:
 
                     out.append((path, file_data))
 
-            print("Now treating multiple attachments ... ")
-
             for _part in message['payload'].get('parts', ''):
                 if 'parts' not in _part:
                     continue
@@ -332,10 +317,8 @@ class EmailWrapper:
                 for part in parts:
                     if part['filename']:
                         if 'data' in part['body']:
-                            print("Getting body data11")
                             data = part['body']['data']
                         else:
-                            print("Retrieving attachment11")
                             att_id = part['body']['attachmentId']
                             att = self.service.users().messages().attachments().get(
                                 userId=self.user_id,
@@ -349,11 +332,6 @@ class EmailWrapper:
 
                         out.append((path, file_data))
 
-            # also try to get any other attachment type...
-
-            print("All found resource are: ")
-            for i in out:
-                print(i)
             return out
 
         except errors.HttpError as error:

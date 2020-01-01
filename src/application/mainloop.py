@@ -11,12 +11,14 @@ from src.resources.union_special_list import usp_price_list
 
 email_whitelist = [
     'david.yenicelk@gmail.com',
+    'segaslp@gmail.com',
     'baker@bakermagnetics.com.tr',
     'auguryenicelik@hotmail.com',
     'mcyenicelik@hotmail.com',
     'mcyenicelik@bakermagnetics.com.tr',
+    'unionspecialbags@bakermagnetics.com.tr',
+    'unionspecial@bakermagnetics.com.tr',
     'baker@bakermagnetics.com.tr',
-    'segaslp@gmail.com'
 ]
 
 def handle_datasources(datasources):
@@ -51,9 +53,9 @@ def extract_union_special_items(fulltext):
     out = []
     for part in matching_parts:
         part_json = usp_price_list.get_partnumber_json(part_no=part)
-        print("Part json is")
-        print(part_json)
-        print("Part json is", type(part_json), len(part_json))
+        # print("Part json is")
+        # print(part_json)
+        # print("Part json is", type(part_json), len(part_json))
         out.append(part_json)
     return out
 
@@ -67,11 +69,11 @@ def get_unit_number(fulltext_string, part_number):
     # Split the fulltext by whitespaces
     tokens = fulltext_string.split(" ")
     # Identify index of occurence
-    print("Part number is", part_number)
+    # print("Part number is", part_number)
     idx = tokens.index(part_number)
-    print("Identified token is: ", tokens[idx])
-    print("Identified token is: ", tokens[idx-20:idx+20])
-    print("Identified token is: ", tokens[idx-50:idx+50])
+    # print("Identified token is: ", tokens[idx])
+    # print("Identified token is: ", tokens[idx-20:idx+20])
+    # print("Identified token is: ", tokens[idx-50:idx+50])
     if idx == -1:
         return 0
     # move from idx and find best occuring number (2 digits)
@@ -82,7 +84,7 @@ def get_unit_number(fulltext_string, part_number):
         candidate1 = str(tokens[idx + i])
         # Convolution 2
         candidate2 = str(tokens[idx - i])
-        print("Candidate 1 and 2 are", candidate1, candidate2)
+        # print("Candidate 1 and 2 are", candidate1, candidate2)
         if len(candidate1) <= 2:
             units = _represents_int(candidate1)
             if units < 30:
@@ -123,6 +125,8 @@ if __name__ == "__main__":
             ###############################
             print("Retrieving OCR or fulltext")
             sender = email_service.get_email_sender(msg_id=message_idx)
+            if sender is None:
+                assert False, ("No sender found! Cannot respond to anyone ...", sender)
             email_service.set_email_to(sender)
 
             # Continue if email from is not whitelisted..
@@ -149,8 +153,8 @@ if __name__ == "__main__":
             excel = USExcelTemplate()
             matching_parts = list(sorted(matching_parts, key=lambda x: x['Partnumber']))
             for part_json in matching_parts:
-                print("Inserting")
-                print(part_json)
+                # print("Inserting")
+                # print(part_json)
 
                 # Identify the unit number
                 units = get_unit_number(plaintext, part_json['Partnumber']) # Will comment out for now because not very stable
@@ -179,13 +183,12 @@ if __name__ == "__main__":
 
             # Instead of saving to disk, we need to send the email ....
             # excel.save_to_disk()
-            excel.save_to_disk_from_bytes()
+            # excel.save_to_disk_from_bytes()
 
             # We might want to mark individual items as read before,
             # just in case it creates a crash in the server...
 
-            # mark_as_read(service, 'me', message_idx)
-            # email_wrapper.get_message(msg_id=message_idx)
+            email_service.mark_as_read(msg_id=message_idx)
 
         exit(0)
         time.sleep(TIME_INTERVAL)

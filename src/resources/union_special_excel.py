@@ -75,7 +75,7 @@ class USExcelTemplate:
 
         rowidx = self.rowcounter + self.rowoffset
 
-        print("Row id is", rowidx)
+        # print("Row id is", rowidx)
 
         # Insert a row
         if self.rowcounter > 0:
@@ -85,7 +85,7 @@ class USExcelTemplate:
             previous_row = rowidx
 
         # Copy the styles of the preivous cells
-        print("Row offset is: ", self.rowcounter)
+        # print("Row offset is: ", self.rowcounter)
 
         # Insert "sira"
         style = copy(self.sheet[f'A{previous_row}']._style)
@@ -160,7 +160,7 @@ class USExcelTemplate:
             style = copy(self.sheet[f'{deadcol}{previous_row}']._style)
             self.sheet[f'{deadcol}{rowidx}']._style = style
 
-        print("Row id is", rowidx)
+        # print("Row id is", rowidx)
 
         self.sheet[f'H{rowidx + 3}'] = f'=SUM(H{self.rowoffset}: H{rowidx})'
         self.sheet[f'H{rowidx + 4}'] = f'=H{rowidx + 3}*25/100'
