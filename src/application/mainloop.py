@@ -19,6 +19,7 @@ email_whitelist = [
     'unionspecialbags@bakermagnetics.com.tr',
     'unionspecial@bakermagnetics.com.tr',
     'baker@bakermagnetics.com.tr',
+    'bakermagnetics@theaicompany.com'
 ]
 
 def handle_datasources(datasources):
@@ -47,12 +48,55 @@ def handle_datasources(datasources):
 
     return out
 
+def _is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
+def _is_short(x):
+    return len(x) <= 3
+
 def extract_union_special_items(fulltext):
-    fulltext = set(fulltext.split())
-    matching_parts = fulltext.intersection(usp_price_list.get_partlist_as_set)
+    union_special_item_set = usp_price_list.get_partlist_as_set
+
+    # Must be a partition of the set, i.e. a full case distinction
+    simple_union_special_item_seet = [x for x in union_special_item_set if (_is_number(x) or _is_short(x))]
+    complex_union_special_item_seet = [x for x in union_special_item_set if not (_is_number(x) or _is_short(x))]
+
+    acceptable_chars = set()
+    print("Iterating")
+    for word in union_special_item_set:
+        if ' ' in word:
+            print(word)
+        wordset = set(word)
+        acceptable_chars = acceptable_chars.union(wordset)
+
+    # print("Union special parts")
+    # print(union_special_item_set)
+
+    featureset1 = fulltext
+    featureset2 = fulltext.replace(" ", "")
+    featureset3 = fulltext.replace(" ", "-")
+    featureset4 = fulltext.replace("-", "")
+    featureset5 = fulltext.replace("-", " ")
+
+    # This is the advanced set. Only search complex names in this advanced set
+    full_featureset = featureset1 + featureset2 + featureset3 + featureset4 + featureset5
+    simple_featureset = fulltext.split()
+
+    # For all parts, detect if they are included
+    found_items_simple = [x for x in list(simple_union_special_item_seet)if x in simple_featureset]
+    found_items_complex = [x for x in list(complex_union_special_item_seet) if x in full_featureset]
+    matching_parts = found_items_simple + found_items_complex
+
     out = []
     for part in matching_parts:
+        print("Part is")
+        print(part)
         part_json = usp_price_list.get_partnumber_json(part_no=part)
+        print(part_json)
         out.append(part_json)
     return out
 
@@ -61,34 +105,6 @@ def _represents_int(s):
         return int(s)
     except ValueError:
         return 1
-
-def get_unit_number(fulltext_string, part_number):
-    # Split the fulltext by whitespaces
-    tokens = fulltext_string.split(" ")
-    # Identify index of occurence
-    idx = tokens.index(part_number)
-    if idx == -1:
-        return 0
-    # move from idx and find best occuring number (2 digits)
-    # do not move past 20 tokens away from the unit for the unit number
-    for i in range(1, 50):
-        # You could probably implement this in a more efficient manner using convolutions...
-        # Convolution 1
-        candidate1 = str(tokens[idx + i])
-        # Convolution 2
-        candidate2 = str(tokens[idx - i])
-        # print("Candidate 1 and 2 are", candidate1, candidate2)
-        if len(candidate1) <= 2:
-            units = _represents_int(candidate1)
-            if units < 30:
-                return units
-        if len(candidate2) <= 2:
-            units = _represents_int(candidate1)
-            if units < 30:
-                return units
-
-    return 1
-
 
 if __name__ == "__main__":
     print("Starting program...")
@@ -148,7 +164,8 @@ if __name__ == "__main__":
             for part_json in matching_parts:
 
                 # Identify the unit number
-                units = get_unit_number(plaintext, part_json['Partnumber']) # Will comment out for now because not very stable
+                # Will not include this because this does not work well yet
+                units = 1
 
                 excel.insert_item(
                     partnumber=part_json['Partnumber'],

@@ -8,12 +8,19 @@ from tempfile import NamedTemporaryFile
 
 import numpy as np
 from copy import copy
+
 from openpyxl import load_workbook
+
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class USExcelTemplate:
 
     def _load_template(self):
-        filepath = "/Users/david/xtractor/data/Templates/UnionSpecial.xlsx"
+        filepath = os.getenv('UNSP_TEKLIF_TEMPLATE_PATH')
         workbook = load_workbook(filepath)
         sheet = workbook.active
         print("Workbook is")
