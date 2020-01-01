@@ -53,9 +53,6 @@ def extract_union_special_items(fulltext):
     out = []
     for part in matching_parts:
         part_json = usp_price_list.get_partnumber_json(part_no=part)
-        # print("Part json is")
-        # print(part_json)
-        # print("Part json is", type(part_json), len(part_json))
         out.append(part_json)
     return out
 
@@ -69,11 +66,7 @@ def get_unit_number(fulltext_string, part_number):
     # Split the fulltext by whitespaces
     tokens = fulltext_string.split(" ")
     # Identify index of occurence
-    # print("Part number is", part_number)
     idx = tokens.index(part_number)
-    # print("Identified token is: ", tokens[idx])
-    # print("Identified token is: ", tokens[idx-20:idx+20])
-    # print("Identified token is: ", tokens[idx-50:idx+50])
     if idx == -1:
         return 0
     # move from idx and find best occuring number (2 digits)
@@ -153,8 +146,6 @@ if __name__ == "__main__":
             excel = USExcelTemplate()
             matching_parts = list(sorted(matching_parts, key=lambda x: x['Partnumber']))
             for part_json in matching_parts:
-                # print("Inserting")
-                # print(part_json)
 
                 # Identify the unit number
                 units = get_unit_number(plaintext, part_json['Partnumber']) # Will comment out for now because not very stable
@@ -178,16 +169,7 @@ if __name__ == "__main__":
             )
 
             print("Sending e-mail and marking as read...")
-            # Send email to from person lol
             email_service.send_message(message=message)
-
-            # Instead of saving to disk, we need to send the email ....
-            # excel.save_to_disk()
-            # excel.save_to_disk_from_bytes()
-
-            # We might want to mark individual items as read before,
-            # just in case it creates a crash in the server...
-
             email_service.mark_as_read(msg_id=message_idx)
 
         time.sleep(TIME_INTERVAL)

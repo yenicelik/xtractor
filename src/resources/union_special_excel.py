@@ -3,31 +3,12 @@
 """
 import datetime
 import random
-from io import StringIO, BytesIO
+from io import BytesIO
 from tempfile import NamedTemporaryFile
 
 import numpy as np
 from copy import copy
 from openpyxl import load_workbook
-from openpyxl.writer.excel import save_virtual_workbook
-
-def _write_value_to_cell(cell_identifier, style_cell_identifier, value):
-    """
-        Preserves style when writing to the cell
-    :param cell_identifier:
-    :param value:
-    :return:
-    """
-    # new_cell.font = copy(cell.font)
-    # new_cell.border = copy(cell.border)
-    # new_cell.fill = copy(cell.fill)
-    # new_cell.number_format = copy(cell.number_format)
-    # new_cell.protection = copy(cell.protection)
-    # new_cell.alignment = copy(cell.alignment)
-    # self.sheet[f'A{rowidx}'] = self.rowcounter + 1
-    # self.sheet[f'A{rowidx}'].style = style
-    # new_cell.font = copy(cell.font)
-    pass
 
 class USExcelTemplate:
 
@@ -83,9 +64,6 @@ class USExcelTemplate:
             previous_row = rowidx - 1
         else:
             previous_row = rowidx
-
-        # Copy the styles of the preivous cells
-        # print("Row offset is: ", self.rowcounter)
 
         # Insert "sira"
         style = copy(self.sheet[f'A{previous_row}']._style)
@@ -160,8 +138,6 @@ class USExcelTemplate:
             style = copy(self.sheet[f'{deadcol}{previous_row}']._style)
             self.sheet[f'{deadcol}{rowidx}']._style = style
 
-        # print("Row id is", rowidx)
-
         self.sheet[f'H{rowidx + 3}'] = f'=SUM(H{self.rowoffset}: H{rowidx})'
         self.sheet[f'H{rowidx + 4}'] = f'=H{rowidx + 3}*25/100'
         self.sheet[f'H{rowidx + 5}'] = f'=H{rowidx + 3}-H{rowidx + 4}'
@@ -172,7 +148,6 @@ class USExcelTemplate:
     def save_to_disk(self):
         rnd_no = random.randint(1000, 9999)
         self.workbook.save(f"./test{rnd_no}.xlsx")
-        # self.workbook.save(f"./test1.xlsx")
 
     def save_to_disk_from_bytes(self):
         """
@@ -189,10 +164,6 @@ class USExcelTemplate:
                 fp.write(output.read())
 
     def get_bytestring(self):
-        # output = StringIO()
-        # self.workbook.save(output)
-        # self.workbook.save(f"./test1.xlsx")
-        # return output
         with NamedTemporaryFile() as tmp:
             self.workbook.save(tmp.name)
             output = BytesIO(tmp.read())

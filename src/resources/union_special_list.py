@@ -71,7 +71,6 @@ class USPriceList:
         :param part_no:
         :return:
         """
-        # Instead of levenshtein distance, do a fallback with
         # "-" instead of " " (and vice-verca)
         # remove all whitespaces
         # Should probably populate initial dataframe with these items
