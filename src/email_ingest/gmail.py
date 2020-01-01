@@ -147,10 +147,10 @@ class EmailWrapper:
         message.add_header('Accept-Encoding', 'gzip')
 
         message_text = random.choice([
-                "Merhabalar, \n\n"
-                "Excel ek-dosyada bulunabilir. "
-                "\nGeribilirdirim ve ürün-fikirleri icin david@theaicompany.com 'a yazin "
-                "\n\n Saygilarla, \nBM Baker Magnetics AI Robot \n\n"
+            'Merhabalar, \n\n'
+            'Excel ek-dosyada bulunabilir. '
+            '\nGeribilirdirim ve ürün-fikirleri icin lütfen david@theaicompany.com \'a yazin '
+            '\n\n Saygilarla, \nBM Baker Magnetics AI Robot \n\n'
         ])
 
         msg = MIMEText(message_text)
