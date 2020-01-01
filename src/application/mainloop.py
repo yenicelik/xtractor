@@ -47,8 +47,19 @@ def handle_datasources(datasources):
 
     return out
 
+def _is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
 def extract_union_special_items(fulltext):
     union_special_item_set = usp_price_list.get_partlist_as_set
+
+    # Must be a partition of the set, i.e. a full case distinction
+    simple_union_special_item_seet = [x for x in union_special_item_set if _is_number(x)]
+    complex_union_special_item_seet = [x for x in union_special_item_set if not _is_number(x)]
 
     # q = [set(x) for x in union_special_items]
     acceptable_chars = set()
@@ -69,10 +80,14 @@ def extract_union_special_items(fulltext):
     featureset4 = fulltext.replace("-", "")
     featureset5 = fulltext.replace("-", " ")
 
+    # This is the advanced set. Only search complex names in this advanced set
     full_featureset = featureset1 + featureset2 + featureset3 + featureset4 + featureset5
+    simple_featureset = fulltext.split()
 
     # For all parts, detect if they are included
-    found_items = [x for x in list(union_special_item_set) if x in full_featureset]
+    found_items_simple = [x for x in list(simple_union_special_item_seet)if x in simple_featureset]
+    found_items_complex = [x for x in list(complex_union_special_item_seet) if x in full_featureset]
+    found_items = found_items_simple + found_items_complex
 
     # fulltext = fulltext.
     print("Fulltext is", full_featureset)
